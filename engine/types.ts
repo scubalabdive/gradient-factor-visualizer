@@ -28,6 +28,7 @@ export type GFSet = {
   name?: string; // "30/70"
   gfLow: number; // 0..1 (UI shows 0..100)
   gfHigh: number; // 0..1
+  enabled?: boolean; // UI-only: show on the graphs (default true). Engine ignores it.
 };
 
 export type EnvironmentConfig = {

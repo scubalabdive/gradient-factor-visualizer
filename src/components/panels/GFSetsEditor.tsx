@@ -1,6 +1,8 @@
 // GF sets (up to 3) — each a GF Low/High pair with slider + numeric entry, an
-// optional name, and a conservatism-encoded colour swatch (spec §6.3 / §10).
-// Sliders drive live recompute through the store. GF Low is kept ≤ GF High.
+// optional name, and a conservatism-encoded colour swatch (spec §6.3 / §10). The
+// swatch doubles as a show/hide toggle: hidden sets drop off every graph but stay
+// editable. Sliders drive live recompute through the store. GF Low is kept ≤ GF High.
+import type { CSSProperties } from 'react';
 import { MAX_GF_SETS } from '../../store/defaults';
 import { useStore } from '../../store/useStore';
 import { assignGFColors } from '../../theme/gfColors';
@@ -11,8 +13,10 @@ export function GFSetsEditor() {
   const gfSets = useStore((s) => s.gfSets);
   const addGFSet = useStore((s) => s.addGFSet);
   const updateGFSet = useStore((s) => s.updateGFSet);
+  const toggleGFSet = useStore((s) => s.toggleGFSet);
   const removeGFSet = useStore((s) => s.removeGFSet);
   const colors = assignGFColors(gfSets);
+  const shownCount = gfSets.filter((g) => g.enabled !== false).length;
 
   return (
     <Panel
@@ -33,10 +37,26 @@ export function GFSetsEditor() {
           const lo = round(gf.gfLow * 100);
           const hi = round(gf.gfHigh * 100);
           const color = colors[gf.id] ?? 'var(--gf-1)';
+          const shown = gf.enabled !== false;
+          const lockedOn = shown && shownCount <= 1; // keep ≥1 set on the graphs
           return (
-            <div className="gf-card" key={gf.id}>
+            <div className={'gf-card' + (shown ? '' : ' is-hidden')} key={gf.id}>
               <div className="gf-card-head">
-                <span className="gf-swatch" style={{ background: color }} />
+                <button
+                  type="button"
+                  className={'gf-toggle' + (shown ? ' is-on' : '')}
+                  style={{ '--swatch': color } as CSSProperties}
+                  aria-pressed={shown}
+                  disabled={lockedOn}
+                  title={
+                    shown
+                      ? lockedOn
+                        ? 'At least one set must stay visible'
+                        : 'Shown on graphs — click to hide'
+                      : 'Hidden — click to show'
+                  }
+                  onClick={() => toggleGFSet(gf.id)}
+                />
                 <input
                   className="gf-name"
                   value={gf.name ?? ''}

@@ -19,7 +19,10 @@ export function useEngineResults(): EngineResults {
 
   return useMemo<EngineResults>(() => {
     try {
-      const { results } = runEngine({ segments, gases, gfSets, env });
+      // Only the enabled sets are computed → disabled sets disappear from every
+      // view, legend, and the outputs table at once (the store keeps ≥1 enabled).
+      const active = gfSets.filter((g) => g.enabled !== false);
+      const { results } = runEngine({ segments, gases, gfSets: active, env });
       return { ok: true, results };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };

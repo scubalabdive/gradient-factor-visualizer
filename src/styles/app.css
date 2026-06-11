@@ -82,6 +82,11 @@
   border-right: 1px solid var(--border);
   background: var(--bg);
 }
+/* Panels keep their natural height so the column overflows and the sidebar
+   actually scrolls — without this, flex-shrink squashes them and nothing scrolls. */
+.sidebar > * {
+  flex-shrink: 0;
+}
 .stage {
   flex: 1;
   min-width: 0;
@@ -214,12 +219,31 @@
 }
 
 /* ── GF sets ───────────────────────────────────────────────────────────────── */
-.gf-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+/* Swatch doubles as a show/hide toggle: filled = shown, hollow = hidden. */
+.gf-toggle {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
-  box-shadow: 0 0 8px -1px currentColor;
+  padding: 0;
+  border-radius: 3px;
+  border: 1.5px solid var(--swatch);
+  background: transparent;
+}
+.gf-toggle.is-on {
+  background: var(--swatch);
+  box-shadow: 0 0 8px -1px var(--swatch);
+}
+.gf-toggle:disabled {
+  cursor: default;
+}
+/* A hidden set stays editable but reads as "off". */
+.gf-card.is-hidden {
+  border-style: dashed;
+  background: transparent;
+}
+.gf-card.is-hidden .gf-name,
+.gf-card.is-hidden .gf-slider-row {
+  opacity: 0.4;
 }
 .gf-name {
   flex: 1;

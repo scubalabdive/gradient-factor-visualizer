@@ -45,6 +45,7 @@ type Actions = {
 
   addGFSet: () => void;
   updateGFSet: (id: string, patch: Partial<Omit<GFSet, 'id'>>) => void;
+  toggleGFSet: (id: string) => void;
   removeGFSet: (id: string) => void;
 
   updateEnv: (patch: Partial<EnvironmentConfig>) => void;
@@ -121,10 +122,20 @@ export const useStore = create<State & Actions>((set) => ({
       s.gfSets.length >= MAX_GF_SETS
         ? {}
         : // Nameless: the label derives live from the GF pair until the user names it.
-          { gfSets: [...s.gfSets, { id: uid('gf'), gfLow: 0.4, gfHigh: 0.85 }] },
+          { gfSets: [...s.gfSets, { id: uid('gf'), gfLow: 0.4, gfHigh: 0.85, enabled: true }] },
     ),
   updateGFSet: (id, patch) =>
     set((s) => ({ gfSets: s.gfSets.map((gf) => (gf.id === id ? { ...gf, ...patch } : gf)) })),
+  // Show/hide a set on the graphs. Keeps ≥1 set visible (an empty stage is useless).
+  toggleGFSet: (id) =>
+    set((s) => {
+      const target = s.gfSets.find((g) => g.id === id);
+      if (!target) return {};
+      const isOn = target.enabled !== false;
+      const onCount = s.gfSets.filter((g) => g.enabled !== false).length;
+      if (isOn && onCount <= 1) return {};
+      return { gfSets: s.gfSets.map((g) => (g.id === id ? { ...g, enabled: !isOn } : g)) };
+    }),
   removeGFSet: (id) =>
     set((s) => (s.gfSets.length <= 1 ? {} : { gfSets: s.gfSets.filter((gf) => gf.id !== id) })),
 
