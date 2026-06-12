@@ -14,6 +14,21 @@ const P_H2O = constants.P_H2O;
 
 const air: GasMix = { id: 'air', name: 'Air', fO2: 0.21, fHe: 0, role: 'diluent' };
 const tx1845: GasMix = { id: 'tx', name: 'Tx 18/45', fO2: 0.18, fHe: 0.45, role: 'diluent' };
+const tx1835: GasMix = { id: 'tx35', name: 'Tx 18/35', fO2: 0.18, fHe: 0.35, role: 'diluent' };
+
+/** Assert the engine's stops against a Subsurface reference within §12 tolerances:
+ *  stop depths exact, per-stop times within ±1 min, total deco within ±3. */
+function expectStopsWithinTolerance(
+  result: { firstStopDepth: number; stops: { depth: number; duration: number }[]; totalDecoTime: number },
+  ref: { firstStop: number; stops: { depth: number; duration: number }[]; totalDeco: number },
+) {
+  expect(result.firstStopDepth).toBe(ref.firstStop);
+  expect(result.stops.map((s) => s.depth)).toEqual(ref.stops.map((s) => s.depth));
+  result.stops.forEach((s, i) => {
+    expect(Math.abs(s.duration - ref.stops[i]!.duration)).toBeLessThanOrEqual(1);
+  });
+  expect(Math.abs(result.totalDecoTime - ref.totalDeco)).toBeLessThanOrEqual(3);
+}
 
 describe('ccrBreathing (the loop model)', () => {
   it('holds ppO2 at the setpoint; inert is the remainder, all N₂ for air diluent', () => {
@@ -70,8 +85,9 @@ describe('CCR engine (smoke)', () => {
 // Tolerances (spec §12, as for OC): stop depths exact; per-stop times within ±1 min;
 // total deco within ±3; runtime/TTS informational (Subsurface rounds the descent to
 // 1 min and inter-stop ascents to 0, so it undercounts travel — not a deco error).
-describe('CCR Subsurface reference (air diluent, 40 m / 20 min, GF 30/70, SP 0.7/1.3)', () => {
-  const ccrEnv: EnvironmentConfig = { ...env, mode: 'ccr', setpointLow: 0.7, setpointHigh: 1.3 };
+const ccrEnv: EnvironmentConfig = { ...env, mode: 'ccr', setpointLow: 0.7, setpointHigh: 1.3 };
+
+describe('CCR Subsurface reference — air diluent, 40 m / 20 min, GF 30/70, SP 0.7/1.3', () => {
   const result = runEngine({
     segments: [{ id: 's1', depth: 40, time: 20, gasId: 'air' }],
     gases: [air],
@@ -79,29 +95,47 @@ describe('CCR Subsurface reference (air diluent, 40 m / 20 min, GF 30/70, SP 0.7
     env: ccrEnv,
   }).results[0]!;
 
-  const SUBSURFACE = {
-    firstStop: 12,
-    stops: [
-      { depth: 12, duration: 1 },
-      { depth: 9, duration: 2 },
-      { depth: 6, duration: 3 },
-      { depth: 3, duration: 4 },
-    ],
-    totalDeco: 10,
-  };
-
-  it('matches the first stop and every stop depth exactly', () => {
-    expect(result.firstStopDepth).toBe(SUBSURFACE.firstStop);
-    expect(result.stops.map((s) => s.depth)).toEqual(SUBSURFACE.stops.map((s) => s.depth));
-  });
-
-  it('matches each per-stop time within ±1 min', () => {
-    result.stops.forEach((s, i) => {
-      expect(Math.abs(s.duration - SUBSURFACE.stops[i]!.duration)).toBeLessThanOrEqual(1);
+  it('matches Subsurface (first stop 12 m, stops 12/9/6/3, deco 10) within §12 tolerances', () => {
+    expectStopsWithinTolerance(result, {
+      firstStop: 12,
+      stops: [
+        { depth: 12, duration: 1 },
+        { depth: 9, duration: 2 },
+        { depth: 6, duration: 3 },
+        { depth: 3, duration: 4 },
+      ],
+      totalDeco: 10,
     });
   });
+});
 
-  it('matches total decompression time within ±3 min', () => {
-    expect(Math.abs(result.totalDecoTime - SUBSURFACE.totalDeco)).toBeLessThanOrEqual(3);
+// Subsurface 6.0.5576 CCR reference (user-supplied 2026-06-12). Trimix 18/35 diluent,
+// 60 m / 20 min, GF 30/70, SP 0.7/1.3 — exercises the helium split of the diluent.
+// Subsurface: first stop 27 m, stops 27→1 / 24→1 / 21→3 / 18→2 / 15→3 / 12→5 / 9→5 /
+// 6→9 / 3→14, total deco 43, runtime 70.
+describe('CCR Subsurface reference — Tx 18/35 diluent, 60 m / 20 min, GF 30/70, SP 0.7/1.3', () => {
+  const result = runEngine({
+    segments: [{ id: 's1', depth: 60, time: 20, gasId: 'tx35' }],
+    gases: [tx1835],
+    gfSets: [{ id: 'g', gfLow: 0.3, gfHigh: 0.7 }],
+    env: ccrEnv,
+  }).results[0]!;
+
+  it('matches Subsurface (trimix diluent — He split) within §12 tolerances', () => {
+    expectStopsWithinTolerance(result, {
+      firstStop: 27,
+      stops: [
+        { depth: 27, duration: 1 },
+        { depth: 24, duration: 1 },
+        { depth: 21, duration: 3 },
+        { depth: 18, duration: 2 },
+        { depth: 15, duration: 3 },
+        { depth: 12, duration: 5 },
+        { depth: 9, duration: 5 },
+        { depth: 6, duration: 9 },
+        { depth: 3, duration: 14 },
+      ],
+      totalDeco: 43,
+    });
   });
 });
