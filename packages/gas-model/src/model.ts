@@ -80,6 +80,9 @@ function computeSchedule(input: GasModelInput, gfSet: GFSet): BailoutResult {
       bailoutGases,
       gfSet,
       env: ccrEnv,
+      // Recognition/problem time held at depth on OC before the bailout ascent —
+      // matches how reference planners model bailout (validated vs Subsurface).
+      problemTimeMin: params.problemTime,
     });
   }
 

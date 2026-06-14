@@ -16,7 +16,14 @@
 // "bailout from bottom" is simply the planned OC ascent with its per-gas breakdown.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { loadExposure, ocAscentStrategy, runAscent, type BreathingSegment } from './ascent';
+import {
+  holdAtDepth,
+  loadExposure,
+  ocAscentStrategy,
+  runAscent,
+  type BreathingSegment,
+} from './ascent';
+import { bestGasAtDepth, ocBreathing } from './gas';
 import type {
   DiveSegment,
   EnvironmentConfig,
@@ -40,6 +47,13 @@ export type BailoutInput = {
   /** Environment. `mode: 'ccr'` loads the bottom on the loop at the setpoints;
    *  the ASCENT is always open-circuit regardless of mode (spec 4.6). */
   env: EnvironmentConfig;
+  /** Optional recognition/problem time (min) held at MAX DEPTH on OPEN CIRCUIT
+   *  before the ascent — the realistic "switch to bailout and deal with the
+   *  failure at depth" delay. Default 0 = the spec §4.6 immediate trigger (so
+   *  existing callers and fixtures are unaffected). Breathed on the deepest
+   *  bailout gas; counted in the bailout TTS and the per-leg gas breakdown.
+   *  Reference CCR planners (e.g. Subsurface) model this as an OC bottom hold. */
+  problemTimeMin?: number;
 };
 
 export type BailoutResult = {
@@ -67,9 +81,22 @@ export type BailoutResult = {
  */
 export function computeBailoutFromBottom(input: BailoutInput): BailoutResult {
   const { segments, loadingGases, bailoutGases, gfSet, env } = input;
+  const problemTimeMin = input.problemTimeMin ?? 0;
 
   const loadGasById = new Map(loadingGases.map((g) => [g.id, g] as const));
   const { ctx, leaveBottomTime } = loadExposure(segments, loadGasById, env);
+
+  // Optional problem/recognition hold at MAX depth on OPEN CIRCUIT before ascending,
+  // breathed on the deepest bailout gas. Recorded as a stop leg so the gas model
+  // counts it; it is bottom time, not deco, so it is NOT added to totalDecoTime, but
+  // it IS inside the bailout TTS (runtime − leaveBottomTime).
+  const holdLegs: BreathingSegment[] = [];
+  if (problemTimeMin > 0) {
+    const depth = ctx.depth;
+    const gas = bestGasAtDepth(depth, bailoutGases, env);
+    holdAtDepth(ctx, problemTimeMin, ocBreathing(gas));
+    holdLegs.push({ kind: 'stop', gasId: gas.id, duration: problemTimeMin, depthFrom: depth, depthTo: depth });
+  }
 
   // The ascent is ALWAYS open-circuit on the bailout gases (spec 4.6) — even when
   // env.mode === 'ccr', which only governed how the bottom was loaded.
@@ -89,6 +116,6 @@ export function computeBailoutFromBottom(input: BailoutInput): BailoutResult {
     bailoutTts,
     runtime,
     profile,
-    segments: breakdown,
+    segments: [...holdLegs, ...breakdown],
   };
 }

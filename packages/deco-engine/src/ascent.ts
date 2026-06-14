@@ -109,6 +109,12 @@ function holdFor(ctx: Ctx, minutes: number, breathing: Breathing): void {
   }
 }
 
+/** Public wrapper over holdFor: hold at the current depth on `breathing`, recording
+ *  samples. Used to model a problem/recognition hold before a bailout ascent (4.6). */
+export function holdAtDepth(ctx: Ctx, minutes: number, breathing: Breathing): void {
+  holdFor(ctx, minutes, breathing);
+}
+
 // ── Ascent breathing strategy ────────────────────────────────────────────────
 //
 // The ascent algorithm is breathing-agnostic: it only needs, at any depth, the

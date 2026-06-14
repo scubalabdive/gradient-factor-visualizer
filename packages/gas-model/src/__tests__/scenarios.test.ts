@@ -227,6 +227,7 @@ describe('Scenario 2 — CCR 60 m / 20 min Tx18/45 dil @ SP 1.3, bailout-at-bott
       ],
       gfSet: scenario2.gfSets[0]!,
       env: { ...scenario2.env, mode: 'ccr', setpointLow: 1.3, setpointHigh: 1.3 },
+      problemTimeMin: CCR_PARAMS.problemTime, // gas model passes problem time through
     });
     expect(g.bailoutTts).toBeCloseTo(sched.bailoutTts, 6);
     // Per-cylinder required reconciles with an independent leg sum at rmvBailout.
@@ -249,35 +250,35 @@ describe('Scenario 2 — CCR 60 m / 20 min Tx18/45 dil @ SP 1.3, bailout-at-bott
   it('snapshots the gas result (regression baseline)', () => {
     expect(snapshotResult(g)).toMatchInlineSnapshot(`
       {
-        "bailoutTts": 42.7,
-        "gasCeilingBar": 97,
+        "bailoutTts": 45.7,
+        "gasCeilingBar": 110,
         "perCylinder": [
           {
             "availableL": 2220,
             "binding": true,
             "id": "bo",
-            "marginL": 1151,
-            "requiredL": 736,
+            "marginL": 1010,
+            "requiredL": 877,
             "reserveL": 333,
           },
           {
             "availableL": 2220,
             "binding": false,
             "id": "ean50",
-            "marginL": 1217,
-            "requiredL": 670,
+            "marginL": 1160,
+            "requiredL": 727,
             "reserveL": 333,
           },
           {
             "availableL": 2220,
             "binding": false,
             "id": "o2",
-            "marginL": 1327,
-            "requiredL": 560,
+            "marginL": 1301,
+            "requiredL": 586,
             "reserveL": 333,
           },
         ],
-        "timeCeilingTts": 64.4,
+        "timeCeilingTts": 62.4,
       }
     `);
   });

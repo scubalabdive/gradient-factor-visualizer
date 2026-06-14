@@ -30,15 +30,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { describe, expect, it } from 'vitest';
-import {
-  applyConstantDepth,
-  computeBailoutFromBottom,
-  depthToPressure,
-  loadExposure,
-  ocAscentStrategy,
-  ocBreathing,
-  runAscent,
-} from '../index';
+import { computeBailoutFromBottom, depthToPressure } from '../index';
 import { DEFAULT_ENV } from '../types';
 import type { BailoutResult } from '../bailout';
 import type { EnvironmentConfig, GasMix } from '../types';
@@ -219,25 +211,20 @@ describe('CCR bailout-at-bottom — scenario 2 (60 m Tx18/45 dil, SP 1.3, GF 30/
 // its OC bailout schedule. This is the §9/§11-M2 "validate against a reference CCR
 // planner" gate, now backed by real numbers.
 //
-// Modelled with the engine's own public primitives: load the 20-min bottom on the
-// loop, hold 4 min OC at 60 m on the bottom bailout, then run the OC ascent.
+// Modelled through the public bailout API with `problemTimeMin` = Subsurface's
+// 4-min OC hold and a 2-min descent (descentRate 30).
 // ─────────────────────────────────────────────────────────────────────────────
 describe('CCR bailout validated against Subsurface 6.0.5576 (matched profile)', () => {
   const env: EnvironmentConfig = { ...CCR_ENV, descentRate: 30 }; // Subsurface: 60 m in 2 min
-  const { ctx, leaveBottomTime } = loadExposure(
-    [{ id: 's1', depth: 60, time: 20, gasId: 'dil' }],
-    new Map([['dil', DIL_TX1845]]),
+  const r = computeBailoutFromBottom({
+    segments: [{ id: 's1', depth: 60, time: 20, gasId: 'dil' }],
+    loadingGases: [DIL_TX1845],
+    bailoutGases: [BO_TX1845, EAN50, O2],
+    gfSet: { id: 'gf3085', gfLow: 0.3, gfHigh: 0.85 },
     env,
-  );
-  // 4-min open-circuit recognition/problem hold at 60 m on the bottom bailout (18/45).
-  for (let i = 0; i < SUBSURFACE_PROBLEM_HOLD_MIN; i++) {
-    ctx.state = applyConstantDepth(ctx.state, 60, 1, ocBreathing(BO_TX1845), env);
-    ctx.clock += 1;
-  }
-  const gfSet = { id: 'gf3085', gfLow: 0.3, gfHigh: 0.85 };
-  const { stops, firstStopDepth } = runAscent(ctx, gfSet, env, ocAscentStrategy([BO_TX1845, EAN50, O2], env));
-  const totalDeco = stops.reduce((s, x) => s + x.duration, 0);
-  const ttsFromBottom = ctx.clock - leaveBottomTime;
+    problemTimeMin: SUBSURFACE_PROBLEM_HOLD_MIN, // 4-min OC hold at 60 m
+  });
+  const { stops, firstStopDepth, totalDecoTime: totalDeco, bailoutTts: ttsFromBottom } = r;
 
   it('reproduces Subsurface stop depths exactly and per-stop minutes within ±1', () => {
     expect(firstStopDepth).toBe(SUBSURFACE_REF.firstStopDepth);
