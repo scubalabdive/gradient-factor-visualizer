@@ -63,8 +63,11 @@ function requiredFromLegs(segments: BreathingSegment[], gasId: string, rmv: numb
     .reduce((sum, s) => sum + legLitres(s, rmv, env), 0);
 }
 
-// ── Reference slot (wired, pending external planner gas figures) ──────────────
-const REFERENCE_PLANNER = null as { note: string } | null;
+// ── Subsurface 6.0.5576 gas figures (user-supplied 2026-06-14) ───────────────
+// Bottom SAC 20 / deco SAC 17 L/min, 4-min problem-solving hold. The OC bailout is
+// breathed entirely at the DECO SAC (17): bottom SAC applies only to the loop phase,
+// which burns no open-circuit gas. Subsurface's OC consumption for scenario 2:
+const SUBSURFACE_GAS = { bo: 1217, ean50: 740, o2: 574 } as const; // litres, keyed by cylinder id
 
 // ═════════════════════════════ §4.3 hand-check ═══════════════════════════════
 describe('4.3 gas demand — the hand-checked arithmetic', () => {
@@ -327,9 +330,40 @@ describe('Scenario 3 — scenario 1 in FRESH water exercises the pressure conver
         "timeCeilingTts": 63.5,
       }
     `);
-
-    if (REFERENCE_PLANNER) {
-      // Activate the ±5% gas-volume comparison against an external planner here.
-    }
   });
+});
+
+// ════════════ Scenario 2 — gas volumes validated vs Subsurface (±5%) ══════════
+// Reproduce Subsurface's exact bailout config (4-min problem hold, deco SAC 17 on
+// the OC bailout, 2-min descent) and confirm the gas model's per-cylinder required
+// litres match Subsurface's gas consumption within the spec §9 ±5% tolerance.
+describe('Scenario 2 — gas volumes match Subsurface 6.0.5576 within ±5%', () => {
+  const params: GasParams = {
+    mode: 'ccr',
+    rmvSelf: 20,
+    rmvBuddy: 20,
+    rmvDeco: 17,
+    rmvBailout: 17, // Subsurface breathes the OC bailout at its DECO SAC
+    stress: 1.0,
+    problemTime: 4, // Subsurface's problem-solving time
+    reserveBar: 30,
+    ccr: { setpoint: 1.3, diluentGasId: 'tx1845' },
+  };
+  const input: GasModelInput = {
+    segments: [{ id: 's1', depth: 60, time: 20, gasId: 'tx1845' }],
+    gases: [TX1845, EAN50, O2],
+    cylinders: CCR_CYLINDERS,
+    params,
+    gfSets: [{ id: 'gf3085', gfLow: 0.3, gfHigh: 0.85 }],
+    env: { ...DEFAULT_ENV, water: 'salt', descentRate: 30 }, // SS: 60 m in 2 min
+  };
+  const g = runGasModel(input).results[0]!;
+  const required = Object.fromEntries(g.perCylinder.map((c) => [c.cylinderId, c.requiredLitres]));
+
+  for (const [id, ss] of Object.entries(SUBSURFACE_GAS)) {
+    it(`${id}: ${Math.round(required[id]!)} L vs Subsurface ${ss} L (within ±5%)`, () => {
+      const pctErr = Math.abs(required[id]! - ss) / ss;
+      expect(pctErr, `${id} ${Math.round(required[id]!)} vs ${ss} = ${(100 * pctErr).toFixed(1)}%`).toBeLessThanOrEqual(0.05);
+    });
+  }
 });
