@@ -1,0 +1,19 @@
+{
+  "name": "@gf/gas-model",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure gas layer for the bailout planner (Two Ceilings): gas demand from a schedule, OC minimum gas, deco-gas adequacy, CCR bailout-at-bottom, two-ceiling synthesis. Depends on @gf/deco-engine; knows nothing about the UI.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@gf/deco-engine": "*"
+  }
+}

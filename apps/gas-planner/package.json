@@ -1,0 +1,14 @@
+{
+  "name": "gas-planner",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Bailout & minimum-gas planner (Two Ceilings) — app scaffold only. The UI (input panels, readout, GF coupling) lands in milestones 4–7. For now this just wires the pure gas-model to a stub entry so the workspace resolves end-to-end.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@gf/deco-engine": "*",
+    "@gf/gas-model": "*"
+  }
+}

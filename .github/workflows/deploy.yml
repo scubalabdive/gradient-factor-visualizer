@@ -26,11 +26,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      # npm ci at the repo root installs every workspace (engine, gas-model, apps).
       - run: npm ci
+      # Root `build` delegates to the visualizer workspace (tsc typecheck + vite build).
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          # Monorepo: the visualizer now builds into its own workspace dist.
+          path: ./apps/gf-visualizer/dist
 
   deploy:
     needs: build

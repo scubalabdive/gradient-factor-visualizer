@@ -1,7 +1,7 @@
 {
+  // Root anchor only. Each workspace owns a self-contained tsconfig that the
+  // `typecheck` script invokes directly (no project references / composite, so
+  // no emit headaches). Editors fall back to the nearest per-folder config.
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "extends": "./tsconfig.base.json"
 }

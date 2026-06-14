@@ -1,29 +1,25 @@
 {
-  "name": "gradient-factor-visualizer",
+  "name": "two-ceilings",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Gradient Factor Visualizer — teaching/visualization tool for how GF settings change a decompression profile. Milestone 1: engine only.",
+  "description": "Two Ceilings — bailout & minimum-gas planner monorepo. A shared, pure ZH-L16C+GF decompression engine feeds two sibling apps (GF Visualizer + Gas Planner) and a pure gas model.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "dev": "npm run dev -w apps/gf-visualizer",
+    "build": "npm run build -w apps/gf-visualizer",
+    "preview": "npm run preview -w apps/gf-visualizer",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit",
-    "report": "vitest run engine/__tests__/reference-profiles.test.ts --reporter=verbose"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "zustand": "^5.0.14"
+    "typecheck": "tsc --noEmit -p packages/deco-engine/tsconfig.json && tsc --noEmit -p packages/gas-model/tsconfig.json && tsc --noEmit -p apps/gf-visualizer/tsconfig.json && tsc --noEmit -p apps/gas-planner/tsconfig.json",
+    "report": "vitest run packages/deco-engine/src/__tests__/reference-profiles.test.ts --reporter=verbose"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^20.17.6",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11",
     "vitest": "^2.1.8"
   }
 }

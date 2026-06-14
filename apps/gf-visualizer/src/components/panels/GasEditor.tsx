@@ -1,0 +1,176 @@
+// Gas editor (spec §6.2). One bottom gas plus any number of deco gases, entered
+// as O₂/He fractions. Derived read-outs (N₂%, MOD, auto switch depth) come
+// straight from the engine's own gas helpers so the UI can never disagree with
+// the integration. Deco gases get a manual switch-depth override.
+import type { EnvironmentConfig, GasMix } from '@gf/deco-engine';
+import { fN2, gasSwitchDepth, modDepth } from '@gf/deco-engine';
+import type { Units } from '../../store/defaults';
+import { gasRemovable, useStore } from '../../store/useStore';
+import { depthToDisplay, depthUnitLabel, displayToDepth } from '../../units';
+import { round } from '../../util';
+import { IconButton, NumberField, Panel, SegmentedControl } from '../ui';
+
+const ROLE_OPTS = [
+  { value: 'bottom' as const, label: 'Bottom' },
+  { value: 'deco' as const, label: 'Deco' },
+];
+
+export function GasEditor() {
+  const gases = useStore((s) => s.gases);
+  const segments = useStore((s) => s.segments);
+  const env = useStore((s) => s.env);
+  const units = useStore((s) => s.units);
+  const addGas = useStore((s) => s.addGas);
+  const updateGas = useStore((s) => s.updateGas);
+  const removeGas = useStore((s) => s.removeGas);
+  const du = depthUnitLabel(units);
+  const bottomCount = gases.filter((g) => g.role === 'bottom').length;
+  const isCCR = env.mode === 'ccr';
+
+  return (
+    <Panel
+      title={isCCR ? 'Diluent' : 'Gases'}
+      subtitle={`${gases.length}`}
+      actions={
+        <>
+          <IconButton title={isCCR ? 'Add gas' : 'Add bottom gas'} onClick={() => addGas('bottom')}>
+            ⬣
+          </IconButton>
+          {!isCCR && (
+            <IconButton title="Add deco gas" onClick={() => addGas('deco')}>
+              ＋
+            </IconButton>
+          )}
+        </>
+      }
+    >
+      <div className="gas-list">
+        {isCCR && (
+          <p className="gas-ccr-note">
+            The segment’s gas is the loop diluent — the loop holds O₂ at the setpoint.
+          </p>
+        )}
+        {gases.map((g) => {
+          const o2 = round(g.fO2 * 100);
+          const he = round(g.fHe * 100);
+          const n2 = round(fN2(g) * 100);
+          const mod = modDepth(g, env.ppO2Switch, env);
+          const isLastBottom = g.role === 'bottom' && bottomCount <= 1;
+          const rm = gasRemovable(g, gases, segments);
+          return (
+            <div className="gas-card" key={g.id}>
+              <div className="gas-card-head">
+                <span className="gas-name tabular">{g.name}</span>
+                {isCCR ? (
+                  <span className="gas-role-static">Diluent</span>
+                ) : (
+                  <SegmentedControl
+                    options={ROLE_OPTS}
+                    value={g.role}
+                    ariaLabel="Gas role"
+                    onChange={(role) => {
+                      if (isLastBottom && role === 'deco') return; // keep ≥1 bottom gas
+                      updateGas(g.id, { role });
+                    }}
+                  />
+                )}
+                <IconButton
+                  title={rm.ok ? 'Remove gas' : `Can’t remove — ${rm.reason}`}
+                  danger
+                  disabled={!rm.ok}
+                  onClick={() => removeGas(g.id)}
+                >
+                  ✕
+                </IconButton>
+              </div>
+
+              <div className="gas-fields">
+                <NumberField
+                  label="O₂ %"
+                  value={o2}
+                  min={0}
+                  max={round(100 - he)}
+                  width={56}
+                  onChange={(v) => updateGas(g.id, { fO2: v / 100 })}
+                />
+                <NumberField
+                  label="He %"
+                  value={he}
+                  min={0}
+                  max={round(100 - o2)}
+                  width={56}
+                  onChange={(v) => updateGas(g.id, { fHe: v / 100 })}
+                />
+                <div className="gas-derived">
+                  <span className="field-label">N₂</span>
+                  <span className="tabular">{n2}%</span>
+                </div>
+                <div className="gas-derived">
+                  <span className="field-label">MOD</span>
+                  <span className="tabular">
+                    {Number.isFinite(mod) ? `${round(depthToDisplay(mod, units))} ${du}` : '—'}
+                  </span>
+                </div>
+              </div>
+
+              {!isCCR && g.role === 'deco' && (
+                <SwitchDepthControl gas={g} env={env} units={units} onChange={updateGas} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
+function SwitchDepthControl(props: {
+  gas: GasMix;
+  env: EnvironmentConfig;
+  units: Units;
+  onChange: (id: string, patch: Partial<Omit<GasMix, 'id'>>) => void;
+}) {
+  const { gas, env, units, onChange } = props;
+  const du = depthUnitLabel(units);
+  const auto = gasSwitchDepth({ ...gas, switchDepth: undefined }, env);
+  const isManual = gas.switchDepth !== undefined;
+  const autoFinite = Number.isFinite(auto);
+
+  return (
+    <div className="gas-switch">
+      <span className="field-label">Switch</span>
+      {isManual ? (
+        <NumberField
+          value={depthToDisplay(gas.switchDepth ?? 0, units)}
+          suffix={du}
+          min={0}
+          width={56}
+          onChange={(v) => onChange(gas.id, { switchDepth: displayToDepth(v, units) })}
+        />
+      ) : (
+        <span className="tabular">
+          {autoFinite ? `${round(depthToDisplay(auto, units))} ${du}` : '—'}{' '}
+          <span className="muted">auto</span>
+        </span>
+      )}
+      {isManual ? (
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() => onChange(gas.id, { switchDepth: undefined })}
+        >
+          reset
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="link-btn"
+          disabled={!autoFinite}
+          onClick={() => onChange(gas.id, { switchDepth: round(auto) })}
+        >
+          override
+        </button>
+      )}
+    </div>
+  );
+}
