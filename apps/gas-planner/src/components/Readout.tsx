@@ -102,6 +102,11 @@ function GFSetReadout(props: {
   // is auditable (the deco/time figures are backed by the ascent schedule below).
   const minGas = !isCCR ? safeMinGas(input) : null;
 
+  // Time-ceiling margin: how much longer the time-to-surface can grow before the
+  // binding gas runs out. Negative ⇒ the carried gas doesn't cover the current plan.
+  const tcMargin = r.timeCeilingTts - r.bailoutTts;
+  const tcShort = tcMargin < 0;
+
   return (
     <section className="readout-card" style={{ borderTopColor: color }}>
       <header className="readout-head">
@@ -129,8 +134,10 @@ function GFSetReadout(props: {
             <span className="ceiling-unit">min</span>
           </span>
           <span className="ceiling-label">Time ceiling</span>
-          <span className="ceiling-sub tabular">
-            max OC {isCCR ? 'bailout' : 'ascent'} TTS · now {round(r.bailoutTts, 1)} min
+          <span className="ceiling-sub">longest {isCCR ? 'bailout' : 'ascent'} your gas funds</span>
+          <span className={'ceiling-sub tabular' + (tcShort ? ' margin-low' : '')}>
+            now {round(r.bailoutTts, 1)} min ·{' '}
+            {tcShort ? `short by ${round(-tcMargin, 1)} min` : `${round(tcMargin, 1)} min margin`}
           </span>
         </div>
       </div>
