@@ -66,7 +66,7 @@ export function GasEditor() {
                   }}
                 />
                 <IconButton
-                  title={rm.ok ? 'Remove gas' : `Can’t remove — ${rm.reason}`}
+                  title={rm.ok ? 'Remove gas' : rm.reason ?? 'Can’t remove'}
                   danger
                   disabled={!rm.ok}
                   onClick={() => removeGas(g.id)}
@@ -74,6 +74,14 @@ export function GasEditor() {
                   ✕
                 </IconButton>
               </div>
+
+              {/* Always-visible reason a gas can't be deleted (the disabled ✕'s tooltip
+                  is missed on desktop and invisible on touch). */}
+              {!rm.ok && (
+                <p className="gas-lock-note">
+                  <span aria-hidden="true">🔒</span> {rm.reason ?? 'Can’t remove'}
+                </p>
+              )}
 
               <div className="gas-fields">
                 <NumberField

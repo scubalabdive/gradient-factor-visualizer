@@ -245,9 +245,9 @@ export function gasRemovable(
   const gas = gases.find((g) => g.id === id);
   if (!gas) return { ok: false };
   const bottomCount = gases.filter((g) => g.role === 'bottom').length;
-  if (gas.role === 'bottom' && bottomCount <= 1) return { ok: false, reason: 'need one bottom gas' };
-  if (segments.some((seg) => seg.gasId === id)) return { ok: false, reason: 'used by a segment' };
-  if (cylinders.some((c) => c.gasId === id)) return { ok: false, reason: 'used by a cylinder' };
-  if (diluentGasId === id) return { ok: false, reason: 'used as the diluent' };
+  if (gas.role === 'bottom' && bottomCount <= 1) return { ok: false, reason: 'Keep at least one bottom gas' };
+  if (cylinders.some((c) => c.gasId === id)) return { ok: false, reason: 'Used by a cylinder — remove that cylinder first' };
+  if (segments.some((seg) => seg.gasId === id)) return { ok: false, reason: 'Used by an exposure leg — change it first' };
+  if (diluentGasId === id) return { ok: false, reason: 'Set as the loop diluent — change the diluent first' };
   return { ok: true };
 }

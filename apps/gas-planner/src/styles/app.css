@@ -459,3 +459,14 @@
     padding: var(--s-4);
   }
 }
+
+/* ── Gas can't-delete reason (always visible, replaces the missed tooltip) ───── */
+.gas-lock-note {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin: calc(var(--s-2) * -1) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
