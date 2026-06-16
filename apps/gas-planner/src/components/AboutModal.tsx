@@ -36,7 +36,7 @@ export function AboutModal({ open, onClose }: { open: boolean; onClose: () => vo
       >
         <header className="modal-head">
           <h2 id="about-title" className="modal-title">
-            About Two Ceilings
+            About Gas Planner
           </h2>
           <button ref={closeRef} className="modal-close" aria-label="Close" onClick={onClose}>
             ×

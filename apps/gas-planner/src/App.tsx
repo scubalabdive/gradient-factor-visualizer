@@ -36,7 +36,7 @@ export function App() {
         <div className="brand">
           <span className="brand-mark" />
           <div className="brand-text">
-            <h1 className="brand-title">Two Ceilings</h1>
+            <h1 className="brand-title">Gas Planner</h1>
             <span className="brand-sub">bailout &amp; minimum-gas planner</span>
           </div>
         </div>
