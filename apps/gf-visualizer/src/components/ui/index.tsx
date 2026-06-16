@@ -46,6 +46,11 @@ export function NumberField(props: {
   width?: number | string;
 }) {
   const { value, onChange, label, suffix, min, max, step = 1, decimals = 0, width } = props;
+  // Local draft lets the field go empty / intermediate ("", "-", "1.") while typing.
+  // Binding the input straight to `value` snaps it back and makes the box impossible to
+  // clear. `draft === null` ⇒ show the canonical value; a string ⇒ the user is editing.
+  const [draft, setDraft] = useState<string | null>(null);
+  const display = draft ?? String(round(value, decimals));
   return (
     <label className="field">
       {label !== undefined && <span className="field-label">{label}</span>}
@@ -53,16 +58,17 @@ export function NumberField(props: {
         <input
           type="number"
           className="tabular field-num"
-          value={round(value, decimals)}
+          value={display}
           min={min}
           max={max}
           step={step}
           style={width !== undefined ? { width } : undefined}
           onChange={(e) => {
+            setDraft(e.target.value); // allow empty / partial input
             const v = parseFloat(e.target.value);
-            if (Number.isNaN(v)) return;
-            onChange(clamp(v, min, max));
+            if (!Number.isNaN(v)) onChange(clamp(v, min, max));
           }}
+          onBlur={() => setDraft(null)} // snap back to the canonical value on blur
         />
         {suffix !== undefined && <span className="field-suffix">{suffix}</span>}
       </span>
