@@ -1,0 +1,408 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * App layout + panel-specific styling. Instrument foundation (spec §10);
+ * full "magnificent" polish pass is Milestone 7.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-5);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--gf-1), var(--gf-3));
+  box-shadow: 0 0 12px -2px var(--gf-2);
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.brand-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.brand-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.about-btn {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  padding: 5px var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+}
+.about-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+/* ── Body: sidebar + stage ─────────────────────────────────────────────────── */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+/* Panels keep their natural height so the column overflows and the sidebar
+   actually scrolls — without this, flex-shrink squashes them and nothing scrolls. */
+.sidebar > * {
+  flex-shrink: 0;
+}
+.stage {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-5);
+}
+/* Keep charts legible on ultrawide displays — a centered measure (§10). */
+.stage > * {
+  width: 100%;
+  max-width: 1320px;
+}
+
+/* ── Footer disclaimer (always visible, spec §1) ───────────────────────────── */
+.app-footer {
+  padding: var(--s-2) var(--s-5);
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* ── Segment editor ────────────────────────────────────────────────────────── */
+.seg-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.seg-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr) auto;
+  gap: var(--s-2);
+  align-items: center;
+}
+.seg-row--head {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+  padding: 0 2px;
+}
+.seg-row .field,
+.seg-row .field-input {
+  width: 100%;
+}
+.row-actions {
+  display: flex;
+  gap: 2px;
+}
+
+/* native select dressed like a field */
+.gas-select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+  padding: var(--s-2) var(--s-2);
+  color: var(--text);
+  font-size: var(--fs-md);
+  cursor: pointer;
+}
+.gas-select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ── Gas editor ────────────────────────────────────────────────────────────── */
+.gas-list,
+.gf-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.gas-card,
+.gf-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+  background: var(--bg-elev);
+  padding: var(--s-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.gas-card-head,
+.gf-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.gas-name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  margin-right: auto;
+}
+.gas-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-3);
+}
+.gas-derived {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: var(--fs-md);
+}
+.gas-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-md);
+}
+.muted {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+.link-btn {
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-btn:hover:not(:disabled) {
+  color: #79c0ff;
+}
+
+/* ── GF sets ───────────────────────────────────────────────────────────────── */
+/* Swatch doubles as a show/hide toggle: filled = shown, hollow = hidden. */
+.gf-toggle {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 3px;
+  border: 1.5px solid var(--swatch);
+  background: transparent;
+}
+.gf-toggle.is-on {
+  background: var(--swatch);
+  box-shadow: 0 0 8px -1px var(--swatch);
+}
+.gf-toggle:disabled {
+  cursor: default;
+}
+/* A hidden set stays editable but reads as "off". */
+.gf-card.is-hidden {
+  border-style: dashed;
+  background: transparent;
+}
+.gf-card.is-hidden .gf-name,
+.gf-card.is-hidden .gf-slider-row {
+  opacity: 0.4;
+}
+.gf-name {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 2px 0;
+  font-size: var(--fs-md);
+  color: var(--text);
+}
+.gf-name:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+.gf-slider-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+}
+.gf-edge {
+  font-size: var(--fs-xs);
+}
+
+/* ── Environment ───────────────────────────────────────────────────────────── */
+.env-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.env-row .field-label {
+  width: 5.5rem;
+}
+.env-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+/* ── CCR (rebreather) UI bits ───────────────────────────────────────────────── */
+.env-ccr-note,
+.gas-ccr-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+.gas-ccr-note {
+  padding-bottom: var(--s-1);
+}
+.gas-role-static {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ok);
+  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+  border-radius: var(--r-1);
+  padding: 2px var(--s-2);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Gas Planner additions — Mode bar, cylinder editor, CCR loop, gas parameters.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Mode selector (top of sidebar, always visible — spec §6.1 input #1) ─────── */
+.mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-2);
+  background: var(--bg-elev);
+}
+.mode-bar-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.mode-bar .seg {
+  flex: 1;
+}
+.mode-bar .seg-btn {
+  flex: 1;
+  text-align: center;
+}
+
+/* ── Exposure (CCR diluent column) ───────────────────────────────────────────── */
+.seg-gas-static {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ── Cylinder editor ─────────────────────────────────────────────────────────── */
+.cyl-gas {
+  width: auto;
+  margin-right: auto;
+  font-weight: 600;
+}
+.cyl-share {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.share-toggle {
+  font-size: var(--fs-xs);
+  padding: 3px var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-faint);
+  background: var(--bg-input);
+}
+.share-toggle.is-on {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+}
+
+/* ── CCR loop (diluent + setpoint) ───────────────────────────────────────────── */
+.ccr-loop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--ok);
+  border-radius: var(--r-1);
+  background: var(--bg-elev);
+}
+.ccr-loop-field .gas-select {
+  width: auto;
+  min-width: 7rem;
+}
+
+/* ── Gas parameters ──────────────────────────────────────────────────────────── */
+.params-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.params-legend {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.params-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}

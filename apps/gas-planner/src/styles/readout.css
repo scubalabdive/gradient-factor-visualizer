@@ -1,0 +1,259 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * The two-ceilings readout (spec §7). Instrument aesthetic to the visualizer's
+ * standard: deep canvas, tabular numerals, the data doing the talking. One card per
+ * GF set, the gas + time ceilings as the headline, the per-cylinder table and the
+ * schedule behind them, assumptions inline.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+/* shared card + error + swatch (mirrors the visualizer's viz.css primitives) */
+.viz-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  background: var(--bg-panel);
+  padding: var(--s-4);
+}
+.viz-error {
+  color: var(--error);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 7px -1px currentColor;
+}
+
+/* ── In-water rule banner (spec §4.7) ────────────────────────────────────────── */
+.rule-banner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-2);
+  background: var(--bg-panel);
+}
+.rule-banner p {
+  font-size: var(--fs-md);
+  color: var(--text-dim);
+  margin: 0;
+}
+.rule-banner strong {
+  color: var(--text);
+}
+.rule-badge {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ── Per-set card grid ───────────────────────────────────────────────────────── */
+.readout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: var(--s-4);
+}
+.readout-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gf-1);
+  border-radius: var(--r-2);
+  background: var(--bg-panel);
+}
+.readout-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.readout-title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+.readout-gf {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+/* ── The two ceilings ────────────────────────────────────────────────────────── */
+.ceilings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+.ceiling {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+  background: var(--bg-elev);
+}
+.ceiling-val {
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--text);
+}
+.ceiling-unit {
+  font-size: var(--fs-md);
+  font-weight: 400;
+  color: var(--text-faint);
+  margin-left: 4px;
+}
+.ceiling-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ceiling-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+/* ── Per-cylinder table ──────────────────────────────────────────────────────── */
+.cyl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-md);
+}
+.cyl-table th,
+.cyl-table td {
+  text-align: right;
+  padding: var(--s-2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.cyl-table thead th {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-strong);
+}
+.cyl-table tbody th[scope='row'] {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cyl-gas-name {
+  font-weight: 600;
+  color: var(--text);
+}
+.cyl-role {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+.binding-tag {
+  align-self: flex-start;
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.cyl-table tr.is-binding {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.margin-ok {
+  color: var(--ok);
+}
+.margin-low {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ── Min-gas derivation + schedule + assumptions ─────────────────────────────── */
+.derivation {
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  background: var(--bg-input);
+  border-radius: var(--r-1);
+  line-height: 1.6;
+}
+
+.schedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.schedule-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.schedule-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.schedule-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+.schedule-stops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.schedule-stops li {
+  display: grid;
+  grid-template-columns: 4rem 1rem 4rem 1fr;
+  align-items: baseline;
+  gap: var(--s-2);
+  font-size: var(--fs-md);
+}
+.stop-depth {
+  text-align: right;
+  color: var(--text);
+}
+.stop-arrow {
+  color: var(--text-faint);
+  text-align: center;
+}
+.stop-min {
+  text-align: right;
+  color: var(--text-dim);
+}
+.stop-gas {
+  color: var(--accent);
+  font-size: var(--fs-sm);
+}
+.schedule-none {
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+
+.assumptions {
+  margin: 0;
+  padding-top: var(--s-2);
+  border-top: 1px dashed var(--border);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  line-height: 1.6;
+}

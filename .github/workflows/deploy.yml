@@ -28,12 +28,21 @@ jobs:
           cache: npm
       # npm ci at the repo root installs every workspace (engine, gas-model, apps).
       - run: npm ci
-      # Root `build` delegates to the visualizer workspace (tsc typecheck + vite build).
-      - run: npm run build
+      # Build both apps (each: tsc typecheck + vite build into its own workspace dist).
+      - run: npm run build -w apps/gf-visualizer
+      - run: npm run build -w apps/gas-planner
+      # Assemble the Pages site: the GF Visualizer at the root, the Gas Planner at
+      # /planner. The planner's vite base is './' (relative), so it resolves assets
+      # correctly at whatever sub-path it lands on.
+      - name: Assemble site
+        run: |
+          rm -rf _site
+          mkdir -p _site/planner
+          cp -r apps/gf-visualizer/dist/. _site/
+          cp -r apps/gas-planner/dist/. _site/planner/
       - uses: actions/upload-pages-artifact@v5
         with:
-          # Monorepo: the visualizer now builds into its own workspace dist.
-          path: ./apps/gf-visualizer/dist
+          path: ./_site
 
   deploy:
     needs: build

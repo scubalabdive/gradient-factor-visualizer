@@ -9,7 +9,7 @@
 export const GAS_MODEL_VERSION = '0.1.0';
 
 // Top-level entry (spec §4.7): one GasResult per GF set.
-export { runGasModel, computeMinGas } from './model';
+export { runGasModel, computeMinGas, scheduleForGFSet } from './model';
 export type { MinGasResult } from './model';
 
 // 4.3 demand primitives (exported for audit / UI read-outs / tests).

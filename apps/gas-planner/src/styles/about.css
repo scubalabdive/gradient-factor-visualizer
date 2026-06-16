@@ -1,0 +1,131 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * About / Limitations modal (Milestone 7). Dark instrument overlay (spec §10).
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-5);
+  background: #04070caa;
+  backdrop-filter: blur(3px);
+  animation: modal-fade 0.12s ease;
+}
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal {
+  width: 100%;
+  max-width: 660px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+  box-shadow: 0 24px 60px -20px #000e;
+  overflow: hidden;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.modal-title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.modal-close {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+}
+.modal-close:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.modal-body {
+  padding: var(--s-5);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+.modal-body section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.modal-body h3 {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.modal-body p {
+  font-size: var(--fs-md);
+  color: var(--text-dim);
+}
+.modal-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.modal-disclaimer {
+  font-size: var(--fs-md) !important;
+  color: var(--text) !important;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+  border-left-width: 3px;
+  border-radius: var(--r-1);
+  background: color-mix(in srgb, var(--error) 9%, transparent);
+}
+
+.modal-cite {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.modal-list {
+  margin: 0;
+  padding-left: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  font-size: var(--fs-md);
+  color: var(--text-dim);
+}
+.modal-list li::marker {
+  color: var(--text-faint);
+}
+
+.modal-note {
+  font-size: var(--fs-sm) !important;
+  color: var(--text-faint) !important;
+}

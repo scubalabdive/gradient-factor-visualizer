@@ -1,0 +1,71 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Design tokens — the dark "instrument" foundation (spec §10).
+ *
+ * Milestone 2 establishes the visual language so panels are built in the right
+ * direction; the full "magnificent" polish pass is Milestone 7. Exact hues live
+ * here so every view can reference the SAME token (one mental model across views).
+ *
+ * The GF-set palette is a perceptual cool→warm sequence encoding conservatism
+ * (cool = more conservative, warm = more aggressive). The raw M-value colour is a
+ * stark near-white kept deliberately apart from every GF hue so it never collides
+ * (§10) — defined now, used by the views later.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Canvas — deep navy / near-black so the data glows. */
+  --bg: #090d15;
+  --bg-panel: #10161f;
+  --bg-elev: #161d29;
+  --bg-input: #0c1119;
+
+  --border: #212b3a;
+  --border-strong: #33415a;
+  --focus-ring: #4aa8ff66;
+
+  /* Text */
+  --text: #e6edf6;
+  --text-dim: #93a1b8;
+  --text-faint: #5b6b80;
+
+  --accent: #4aa8ff;
+  --accent-dim: #2b6fb0;
+  --error: #ff6b6b;
+  --ok: #38e0c8;
+
+  /* GF-set palette: cool (conservative) → warm (aggressive). Up to 3 sets. */
+  --gf-1: #38e0c8; /* teal — most conservative */
+  --gf-2: #f2b134; /* amber — middle */
+  --gf-3: #ff5e57; /* warm red — most aggressive */
+
+  /* The physical limit. Stark, neutral, never a GF hue (§10). */
+  --mvalue: #f5f7fa;
+  /* The 45° ambient (P_t = P_amb) reference line. */
+  --ambient: #6b7a96;
+
+  /* Type */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --fs-xs: 0.6875rem; /* 11 */
+  --fs-sm: 0.75rem; /* 12 */
+  --fs-base: 0.8125rem; /* 13 */
+  --fs-md: 0.875rem; /* 14 */
+  --fs-lg: 1rem; /* 16 */
+  --fs-xl: 1.25rem; /* 20 */
+  --fs-2xl: 1.75rem; /* 28 */
+
+  /* Spacing */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+
+  /* Radii */
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 12px;
+
+  --line: 1.45;
+}

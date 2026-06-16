@@ -3,12 +3,24 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Bailout & minimum-gas planner (Two Ceilings) — app scaffold only. The UI (input panels, readout, GF coupling) lands in milestones 4–7. For now this just wires the pure gas-model to a stub entry so the workspace resolves end-to-end.",
+  "description": "Two Ceilings — bailout & minimum-gas planner. A decision-support tool that produces a gas ceiling (bar) and a time ceiling (OC bailout TTS) per GF set. Consumes the shared @gf/deco-engine and the pure @gf/gas-model.",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@gf/deco-engine": "*",
-    "@gf/gas-model": "*"
+    "@gf/gas-model": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
   }
 }

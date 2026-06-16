@@ -52,8 +52,11 @@ function engineGasFor(cyl: Cylinder, gases: GasMix[]): GasMix {
  *
  * The CCR loop holds the single setpoint S throughout the dive phase (spec §4.2's
  * single-S model); we map it to both engine setpoints (descent == working).
+ *
+ * Exported so the UI can render the exact schedule behind each figure (spec §7 —
+ * "the schedule behind every figure is shown") without re-deriving the inputs.
  */
-function computeSchedule(input: GasModelInput, gfSet: GFSet): BailoutResult {
+export function scheduleForGFSet(input: GasModelInput, gfSet: GFSet): BailoutResult {
   const { segments, gases, cylinders, params, env } = input;
 
   if (params.mode === 'ccr') {
@@ -256,7 +259,7 @@ function computeTimeCeiling(
 
 function gasResultForGFSet(input: GasModelInput, gfSet: GFSet): GasResult {
   const { cylinders, params, env } = input;
-  const sched = computeSchedule(input, gfSet);
+  const sched = scheduleForGFSet(input, gfSet);
 
   if (params.mode === 'ccr') {
     // 4.6 CCR bailout-at-bottom: per bailout cylinder, all breathed at rmvBailout.
